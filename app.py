@@ -263,7 +263,6 @@ with button_col:
                 
                 if res.status_code == 200:
                     st.success("Cleared!")
-                    time.sleep(1.5)
                     st.rerun()
                 else:
                     # Specific error if the API key is wrong
