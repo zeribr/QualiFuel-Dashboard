@@ -262,7 +262,7 @@ with button_col:
                 else:
                     st.error("Error Key")
             except:
-                st.error("Failed")
+                st.error("Yamete")
 
 if not df_live.empty:
     df_history = df_live.copy()
