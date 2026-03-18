@@ -276,7 +276,7 @@ with button_area:
                 else:
                     st.error(f"Error: {res.status_code}")
             except:
-                st.error("Connection Failed")
+                st.error("Failed")
 
 if not df_live.empty:
     df_history = df_live.copy()
