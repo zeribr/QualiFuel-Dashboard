@@ -249,13 +249,13 @@ with button_area:
     with check_col:
         # We add a 'key' here so we can control this widget programmatically
         confirm_clear = st.checkbox(
-            "Enable Wipe", 
+            "Delete", 
             help="Confirm permanent deletion.",
             key="wipe_gate" 
         )
     
     with action_col:
-        if st.button("Clear History", type="primary", disabled=not confirm_clear):
+        if st.button("Clear History", type="secondary", disabled=not confirm_clear):
             try:
                 res = requests.delete(
                     f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
