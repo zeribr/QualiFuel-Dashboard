@@ -7,13 +7,16 @@ import time
 # 1. Page Configuration
 st.set_page_config(
     page_title="QualiFuel Dashboard",
+    page_icon="website icon.png",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
 )
 
 # ThingSpeak Credentials
 TS_CHANNEL_ID = "3296519"
 TS_READ_API_KEY = "1RE5E2KSMRQA9C3U"
+# To clear history, you need your User API Key from ThingSpeak Account Settings
+TS_USER_API_KEY = "JSLLJNE9I9K4I0UQ" 
 
 # Initialize Session State for the Fuel Station edits
 if 'station_data' not in st.session_state:
@@ -85,7 +88,14 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 3. Header
-st.markdown("<h1 style='text-align: center;'>QualiFuel Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("""
+    <div style='text-align: center;'>
+        <p style='font-size: 3rem; font-weight: 700; margin-bottom: 0px;'>
+            QualiFuel Dashboard
+        </p>
+    </div>
+""", unsafe_allow_html=True)
+
 st.markdown('<hr style="border: none; border-top: 1px solid rgba(128, 128, 128, 0.3); margin: 10px 0;">', unsafe_allow_html=True)
 
 # 4. Global Logic
@@ -140,10 +150,10 @@ with col3: st.metric("Adulterated Fuel", adul_count)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # 5. Middle Row
-row2_left_margin, left_col, right_col, row2_right_margin = st.columns([0.2, 3, 7, 0.2], gap="large")
+row2_left_margin, left_col, right_col, row2_right_margin = st.columns([0.2, 3, 7, 0.5], gap="large")
 
 with left_col:
-    ts_text = latest['Timestamp'] if latest is not None else "No Data Detected"
+    ts_text = latest['Timestamp'].strftime('%Y-%m-%d %H:%M:%S') if latest is not None else "No Data Detected"
     fuel_text = latest['Fuel Type'] if latest is not None else "_______"
     adul_text = latest['Adulterant'] if latest is not None else "_______"
     conf_text = f"{latest['Confidence (%)']}%" if latest is not None else "_______"
@@ -153,20 +163,22 @@ with left_col:
 
     st.markdown(f"""
         <div class="detection-card">
-            <h2 style="color:white; font-size: 2.2rem; font-weight: bold; margin-top: 0;">Latest Detection</h2>
-            <p style="color:white; opacity: 0.8; font-size: 1.1rem;">{ts_text}</p>
-            <hr style="border-top: 1px solid rgba(255,255,255,0.3); width: 80%; margin: 15px auto;">
-            <div style="text-align: center; line-height: 1.5; font-size: 1.2rem;">
-                <p style="margin:0;"><b>Fuel Type:</b> {fuel_text}</p>
-                <p style="margin:0;"><b>Confidence:</b> {conf_text}</p>
-                <p style="margin:0;"><b>Ethanol:</b> {e_val}</p>
-                <p style="margin:0;"><b>Water:</b> {w_val}</p>
-                <p style="margin:0;"><b>Kerosene:</b> {k_val}</p>
-            </div>
+        <p style="color:white; font-size: 2.2rem; font-weight: bold; margin-top: 0; margin-bottom: 5px;">
+            Latest Detection
+        </p>
+        <p style="color:white; opacity: 0.8; font-size: 1.1rem;">{ts_text}</p>
+        <hr style="border-top: 1px solid rgba(255,255,255,0.3); width: 80%; margin: 15px auto;">
+        <div style="text-align: center; line-height: 1.5; font-size: 1.2rem;">
+            <p style="margin:0;"><b>Fuel Type:</b> {fuel_text}</p>
+            <p style="margin:0;"><b>Confidence:</b> {conf_text}</p>
+            <p style="margin:0;"><b>Ethanol:</b> {e_val}</p>
+            <p style="margin:0;"><b>Water:</b> {w_val}</p>
+            <p style="margin:0;"><b>Kerosene:</b> {k_val}</p>
         </div>
+    </div>
         <div class="accuracy-card">
             <div class="circle-progress" style="--percentage: {avg_acc}%">{avg_acc}%</div>
-            <div style="color:white; font-size: 22px; font-weight: bold; width: 35%; text-align: left; display: flex; align-items: center; justify-content: center;">
+            <div style="color:white; font-size: 22px; font-weight: bold; width: 45%; text-align: left; display: flex; align-items: center; justify-content: center;">
                 Classification<br>Accuracy
             </div>
         </div>
@@ -175,7 +187,7 @@ with left_col:
 with right_col:
     chart_title_col, filter_col1, filter_col2 = st.columns([4, 2, 2])
     with chart_title_col:
-        st.subheader("Adulterants Distribution Chart")
+        st.subheader("Adulterants Distribution Chart", anchor = False)
     
     if not df_live.empty:
         # Month and Year Filters
@@ -226,7 +238,31 @@ with right_col:
         st.info("No data available for chart.")
 
 st.write("---")
-st.subheader("Data History")
+
+# 6. Data History with Clear Button Logic
+title_col, button_col = st.columns([8, 2])
+
+with title_col:
+    st.subheader("Data History", anchor=False)
+
+with button_col:
+    # Create sub-columns to place checkbox and button side-by-side
+    check_col, action_col = st.columns([0.8, 1])
+    with check_col:
+        confirm_clear = st.checkbox("Delete", help="Confirm permanent deletion.")
+    with action_col:
+        if st.button("Clear History", type="secondary", disabled=not confirm_clear):
+            delete_url = f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json"
+            try:
+                res = requests.delete(delete_url, params={'api_key': TS_USER_API_KEY})
+                if res.status_code == 200:
+                    st.success("Cleared!")
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Error Key")
+            except:
+                st.error("Failed")
 
 if not df_live.empty:
     df_history = df_live.copy()
