@@ -259,10 +259,8 @@ with button_col:
                     st.success("Cleared!")
                     st.rerun()
                     time.sleep(1)
-                if:
-                    st.error("Error Key")
-            else:
-                st.error("Failed")
+                else:
+                    st.error("Failed")
 
 if not df_live.empty:
     df_history = df_live.copy()
