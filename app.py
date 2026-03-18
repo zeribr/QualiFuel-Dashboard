@@ -268,7 +268,7 @@ with button_area:
                     st.session_state.wipe_gate = True
                     st.rerun()
                 else:
-                    st.error(f"Error: {res.status_code}")
+                    st.rerun()
             except:
                 st.rerun()
 
