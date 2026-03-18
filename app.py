@@ -256,13 +256,11 @@ with button_col:
             try:
                 res = requests.delete(delete_url, params={'api_key': TS_USER_API_KEY})
                 if res.status_code == 200:
-                    st.success("Cleared!")
-                    time.sleep(1)
                     st.rerun()
                 else:
                     st.error("Error Key")
             except:
-                st.error("Yamete")
+                pass
 
 if not df_live.empty:
     df_history = df_live.copy()
