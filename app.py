@@ -266,16 +266,11 @@ with button_area:
                 if res.status_code == 200:
                     # 1. Reset the checkbox state globally
                     st.session_state.wipe_gate = True
-                    
-                    # 2. Show success message
-                    st.success("Cleared!")
-                    
-                    # 3. Rerun to refresh the table and show the unchecked box
                     st.rerun()
                 else:
                     st.error(f"Error: {res.status_code}")
             except:
-                st.error("Failed")
+                st.rerun()
 
 if not df_live.empty:
     df_history = df_live.copy()
