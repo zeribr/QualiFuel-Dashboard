@@ -254,13 +254,24 @@ with button_col:
         if st.button("Clear History", type="secondary", disabled=not confirm_clear):
             delete_url = f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json"
             try:
-                res = requests.delete(delete_url, params={'api_key': TS_USER_API_KEY})
+                # Use a timeout to prevent the button from hanging
+                res = requests.delete(
+                    f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
+                    params={'api_key': TS_USER_API_KEY},
+                    timeout=5 
+                )
+                
                 if res.status_code == 200:
                     st.success("Cleared!")
+                    time.sleep(1.5)
                     st.rerun()
-                    time.sleep(1)
                 else:
-                    st.error("Failed")
+                    # Specific error if the API key is wrong
+                    st.error(f"Error: {res.status_code}")
+            
+            except requests.exceptions.RequestException as e:
+                # Only show failed if a real network error occurred
+                st.error("Connection Failed")
 
 if not df_live.empty:
     df_history = df_live.copy()
