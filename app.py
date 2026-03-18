@@ -247,7 +247,6 @@ with button_area:
     check_col, action_col = st.columns([1, 1]) 
     
     with check_col:
-        # We add a 'key' here so we can control this widget programmatically
         confirm_clear = st.checkbox(
             "Delete", 
             help="Confirm permanent deletion.",
@@ -264,13 +263,15 @@ with button_area:
                 )
                 
                 if res.status_code == 200:
-                    # 1. Reset the checkbox state globally
-                    st.session_state.wipe_gate = True
+                    # Reset the checkbox state
+                    st.session_state.wipe_gate = False 
+                    
+                    # Rerun immediately without showing "Cleared!"
                     st.rerun()
-                else:
-                    st.rerun()
+                # We removed the st.error("Error") here as well
             except:
-                st.rerun()
+                # We removed the st.error("Failed") here as well
+                pass
 
 if not df_live.empty:
     df_history = df_live.copy()
