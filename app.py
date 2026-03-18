@@ -254,7 +254,7 @@ with button_area:
         )
     
     with action_col:
-        if st.button("Clear History", type="secondary", disabled=not confirm_clear):
+        if st.button("Clear History", type="primary", disabled=not confirm_clear):
             try:
                 res = requests.delete(
                     f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
@@ -263,14 +263,12 @@ with button_area:
                 )
                 
                 if res.status_code == 200:
-                    # Reset the checkbox state
                     st.session_state.wipe_gate = False 
-                    
-                    # Rerun immediately without showing "Cleared!"
-                    st.rerun()
-                # We removed the st.error("Error") here as well
-            except:
-                # We removed the st.error("Failed") here as well
+                    st.rerun()  # This triggers a 'RerunException' which we must NOT catch
+                
+            except requests.exceptions.RequestException:
+                # This only catches actual internet/API failures
+                # Since you want it silent, we just 'pass'
                 pass
 
 if not df_live.empty:
