@@ -240,36 +240,42 @@ with right_col:
 st.write("---")
 
 # 6. Data History with Clear Button Logic
-title_col, button_col = st.columns([8, 2])
+title_col, button_area = st.columns([8, 2])
+with title_col: st.subheader("Data History", anchor=False)
 
-with title_col:
-    st.subheader("Data History", anchor=False)
-
-with button_col:
-    # Create sub-columns to place checkbox and button side-by-side
-    check_col, action_col = st.columns([0.8, 1])
+with button_area:
+    check_col, action_col = st.columns([1, 1]) 
+    
     with check_col:
-        confirm_clear = st.checkbox("Delete", help="Confirm permanent deletion.")
+        # We add a 'key' here so we can control this widget programmatically
+        confirm_clear = st.checkbox(
+            "Enable Wipe", 
+            help="Confirm permanent deletion.",
+            key="wipe_gate" 
+        )
+    
     with action_col:
-        if st.button("Clear History", type="secondary", disabled=not confirm_clear):
-            delete_url = f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json"
+        if st.button("Clear History", type="primary", disabled=not confirm_clear):
             try:
-                # Use a timeout to prevent the button from hanging
                 res = requests.delete(
                     f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
                     params={'api_key': TS_USER_API_KEY},
-                    timeout=5 
+                    timeout=5
                 )
                 
                 if res.status_code == 200:
-                    st.success
+                    # 1. Reset the checkbox state globally
+                    st.session_state.wipe_gate = False 
+                    
+                    # 2. Show success message
+                    st.success("Cleared!")
+                    time.sleep(1.2)
+                    
+                    # 3. Rerun to refresh the table and show the unchecked box
                     st.rerun()
                 else:
-                    # Specific error if the API key is wrong
                     st.error(f"Error: {res.status_code}")
-            
-            except requests.exceptions.RequestException as e:
-                # Only show failed if a real network error occurred
+            except:
                 st.error("Connection Failed")
 
 if not df_live.empty:
