@@ -262,6 +262,7 @@ with button_col:
                 )
                 
                 if res.status_code == 200:
+                    st.success
                     st.rerun()
                 else:
                     # Specific error if the API key is wrong
