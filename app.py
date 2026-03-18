@@ -257,8 +257,8 @@ with button_col:
                 res = requests.delete(delete_url, params={'api_key': TS_USER_API_KEY})
                 if res.status_code == 200:
                     st.success("Cleared!")
-                    time.sleep(1)
                     st.rerun()
+                    time.sleep(1)
                 else:
                     st.error("Error Key")
             except:
