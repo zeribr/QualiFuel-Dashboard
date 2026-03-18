@@ -265,11 +265,10 @@ with button_area:
                 
                 if res.status_code == 200:
                     # 1. Reset the checkbox state globally
-                    st.session_state.wipe_gate = False 
+                    st.session_state.wipe_gate = True
                     
                     # 2. Show success message
                     st.success("Cleared!")
-                    time.sleep(1.2)
                     
                     # 3. Rerun to refresh the table and show the unchecked box
                     st.rerun()
