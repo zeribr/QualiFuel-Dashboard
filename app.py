@@ -140,7 +140,7 @@ with col3: st.metric("Adulterated Fuel", adul_count)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # 5. Middle Row
-row2_left_margin, left_col, right_col, row2_right_margin = st.columns([1, 3, 7, 1], gap="large")
+row2_left_margin, left_col, right_col, row2_right_margin = st.columns([0.2, 3, 7, 0.2], gap="large")
 
 with left_col:
     ts_text = latest['Timestamp'] if latest is not None else "No Data Detected"
