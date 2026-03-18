@@ -255,22 +255,11 @@ with button_area:
     
     with action_col:
         if st.button("Clear History", type="primary", disabled=not confirm_clear):
-            try:
-                res = requests.delete(
-                    f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
-                    params={'api_key': TS_USER_API_KEY},
-                    timeout=5
-                )
-                
-                if res.status_code == 200:
-                    st.session_state.wipe_gate = False 
-                    st.rerun()  # This triggers a 'RerunException' which we must NOT catch
-                
-            except requests.exceptions.RequestException:
-                # This only catches actual internet/API failures
-                # Since you want it silent, we just 'pass'
-                pass
-
+            res = requests.delete(
+                f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
+                params={'api_key': TS_USER_API_KEY},
+                timeout=5)
+            
 if not df_live.empty:
     df_history = df_live.copy()
     # Format timestamp for display in table
