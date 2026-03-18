@@ -259,9 +259,9 @@ with button_col:
                     st.success("Cleared!")
                     st.rerun()
                     time.sleep(1)
-                else:
+                if:
                     st.error("Error Key")
-            except:
+            else:
                 st.error("Failed")
 
 if not df_live.empty:
