@@ -240,26 +240,30 @@ with right_col:
 st.write("---")
 
 # 6. Data History with Clear Button Logic
-title_col, button_area = st.columns([8, 2])
-with title_col: st.subheader("Data History", anchor=False)
+title_col, button_col = st.columns([8, 2])
 
-with button_area:
-    check_col, action_col = st.columns([1, 1]) 
-    
+with title_col:
+    st.subheader("Data History", anchor=False)
+
+with button_col:
+    # Create sub-columns to place checkbox and button side-by-side
+    check_col, action_col = st.columns([0.8, 1])
     with check_col:
-        confirm_clear = st.checkbox(
-            "Delete", 
-            help="Confirm permanent deletion.",
-            key="wipe_gate" 
-        )
-    
+        confirm_clear = st.checkbox("Delete", help="Confirm permanent deletion.")
     with action_col:
-        if st.button("Clear History", type="primary", disabled=not confirm_clear):
-            res = requests.delete(
-                f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json", 
-                params={'api_key': TS_USER_API_KEY},
-                timeout=5)
-            
+        if st.button("Clear History", type="secondary", disabled=not confirm_clear):
+            delete_url = f"https://api.thingspeak.com/channels/{TS_CHANNEL_ID}/feeds.json"
+            try:
+                res = requests.delete(delete_url, params={'api_key': TS_USER_API_KEY})
+                if res.status_code == 200:
+                    st.success("Cleared!")
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Error Key")
+            except:
+                st.error("Failed")
+
 if not df_live.empty:
     df_history = df_live.copy()
     # Format timestamp for display in table
