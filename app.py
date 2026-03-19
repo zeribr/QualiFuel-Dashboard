@@ -62,7 +62,7 @@ def fetch_live_data():
         
         for col in numeric_cols:
             if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).round(2)
         
         # 4. Logic for Adulterants
         def get_adulterant(row):
