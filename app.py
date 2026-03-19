@@ -13,10 +13,9 @@ st.set_page_config(
 )
 
 # ThingSpeak Credentials
-TS_CHANNEL_ID = "3296519"
-TS_READ_API_KEY = "1RE5E2KSMRQA9C3U"
-# To clear history, you need your User API Key from ThingSpeak Account Settings
-TS_USER_API_KEY = "JSLLJNE9I9K4I0UQ" 
+TS_CHANNEL_ID = st.secrets["TS_CHANNEL_ID"]
+TS_READ_API_KEY = st.secrets["TS_READ_API_KEY"]
+TS_USER_API_KEY = st.secrets["TS_USER_API_KEY"]
 
 # Initialize Session State for the Fuel Station edits
 if 'station_data' not in st.session_state:
