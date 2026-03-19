@@ -279,9 +279,9 @@ with button_col:
 if not df_live.empty:
     df_history = df_live.copy()
     # Format timestamp for display in table
-    df_history["Timestamp_Display"] = df_history["Timestamp"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df_history["Data & TIme"] = df_history["Timestamp"].dt.strftime('%Y-%m-%d %H:%M:%S')
 
-    display_cols = ["Timestamp_Display", "Fuel Type", "Confidence (%)", "Ethanol %", "Water %", "Kerosene %", "Temperature (°C)", "Speed of Sound (m/s)", "Impedance Slope"]
+    display_cols = ["Data & TIme", "Fuel Type", "Confidence (%)", "Ethanol %", "Water %", "Kerosene %", "Temperature (°C)", "Speed of Sound (m/s)", "Impedance Slope"]
     
     edited_df = st.data_editor(
         df_history[display_cols],
