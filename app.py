@@ -29,10 +29,13 @@ def fetch_live_data():
         response = requests.get(url)
         data = response.json()
         feeds = data.get('feeds', [])
+        
         if not feeds:
             return pd.DataFrame()
         
         df = pd.DataFrame(feeds)
+        
+        # 1. Standardize column names
         df = df.rename(columns={
             "created_at": "Timestamp",
             "field1": "Fuel Type",
@@ -45,16 +48,23 @@ def fetch_live_data():
             "field8": "Impedance Slope"
         })
         
-        # Convert to datetime, localize as UTC, then convert to UTC+8
-        df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.tz_localize('UTC').dt.tz_convert('Asia/Manila')
-        
-        # Remove timezone info so it doesn't cause issues with formatting later
+        # 2. TIMEZONE CORRECTION (Robust Version)
+        # Convert to datetime (utc=True is vital here)
+        df["Timestamp"] = pd.to_datetime(df["Timestamp"], utc=True)
+        # Convert to UTC+8
+        df["Timestamp"] = df["Timestamp"].dt.tz_convert('Asia/Manila')
+        # Make naive (remove the +08:00 label) so Streamlit/Plotly don't crash
         df["Timestamp"] = df["Timestamp"].dt.tz_localize(None)
         
+        # 3. Numeric conversion
         numeric_cols = ["Confidence (%)", "Ethanol %", "Water %", "Kerosene %", 
                         "Temperature (°C)", "Speed of Sound (m/s)", "Impedance Slope"]
-        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce').fillna(0)
         
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        
+        # 4. Logic for Adulterants
         def get_adulterant(row):
             if row["Ethanol %"] > 0: return "Ethanol"
             if row["Water %"] > 0: return "Water"
@@ -63,14 +73,15 @@ def fetch_live_data():
         
         df["Adulterant"] = df.apply(get_adulterant, axis=1)
         
-        # Helper to calculate Week of Month (1-4)
+        # 5. Extract Date Parts for the chart
         df["Year"] = df["Timestamp"].dt.year
         df["Month"] = df["Timestamp"].dt.month_name()
         df["Week"] = df["Timestamp"].apply(lambda d: (d.day-1)//7 + 1)
-        df["Week"] = df["Week"].apply(lambda w: f"Week {min(w, 4)}") # Cap at Week 4
+        df["Week"] = df["Week"].apply(lambda w: f"Week {min(w, 4)}")
         
-        return df.iloc[::-1] 
-    except:
+        return df.iloc[::-1] # Reverse so latest is at the top
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
         return pd.DataFrame()
 
 df_live = fetch_live_data()
