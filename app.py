@@ -45,8 +45,11 @@ def fetch_live_data():
             "field8": "Impedance Slope"
         })
         
-       # Convert Timestamp to Datetime object
-        df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+        # Convert to datetime, localize as UTC, then convert to UTC+8
+        df["Timestamp"] = pd.to_datetime(df["Timestamp"]).dt.tz_localize('UTC').dt.tz_convert('Asia/Manila')
+        
+        # Remove timezone info so it doesn't cause issues with formatting later
+        df["Timestamp"] = df["Timestamp"].dt.tz_localize(None)
         
         numeric_cols = ["Confidence (%)", "Ethanol %", "Water %", "Kerosene %", 
                         "Temperature (°C)", "Speed of Sound (m/s)", "Impedance Slope"]
