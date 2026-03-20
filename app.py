@@ -34,7 +34,6 @@ def fetch_live_data():
         
         df = pd.DataFrame(feeds)
         
-        # 1. Standardize column names
         df = df.rename(columns={
             "created_at": "Timestamp",
             "field1": "Fuel Type",
@@ -47,12 +46,8 @@ def fetch_live_data():
             "field8": "Impedance Slope"
         })
         
-        # 2. TIMEZONE CORRECTION (Robust Version)
-        # Convert to datetime (utc=True is vital here)
         df["Timestamp"] = pd.to_datetime(df["Timestamp"], utc=True)
-        # Convert to UTC+8
         df["Timestamp"] = df["Timestamp"].dt.tz_convert('Asia/Manila')
-        # Make naive (remove the +08:00 label) so Streamlit/Plotly don't crash
         df["Timestamp"] = df["Timestamp"].dt.tz_localize(None)
         
         # 3. Numeric conversion
@@ -78,7 +73,7 @@ def fetch_live_data():
         df["Week"] = df["Timestamp"].apply(lambda d: (d.day-1)//7 + 1)
         df["Week"] = df["Week"].apply(lambda w: f"Week {min(w, 4)}")
         
-        return df.iloc[::-1] # Reverse so latest is at the top
+        return df.iloc[::-1]
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return pd.DataFrame()
@@ -259,7 +254,6 @@ with title_col:
     st.subheader("Data History", anchor=False)
 
 with button_col:
-    # Create sub-columns to place checkbox and button side-by-side
     check_col, action_col = st.columns([0.8, 1])
     with check_col:
         confirm_clear = st.checkbox("Delete", help="Confirm permanent deletion.")
@@ -277,7 +271,7 @@ with button_col:
 
 if not df_live.empty:
     df_history = df_live.copy()
-    # Format timestamp for display in table
+
     df_history["Data & TIme"] = df_history["Timestamp"].dt.strftime('%Y-%m-%d %H:%M:%S')
 
     display_cols = ["Data & TIme", "Fuel Type", "Confidence (%)", "Ethanol %", "Water %", "Kerosene %", "Temperature (°C)", "Speed of Sound (m/s)", "Impedance Slope"]
